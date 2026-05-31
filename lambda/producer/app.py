@@ -15,19 +15,38 @@ def response(status_code, body):
 
 def lambda_handler(event, context):
     try:
+        print("Received event from caller")
+
         body = event.get("body", event)
+
         if isinstance(body, str):
             body = json.loads(body)
 
         missing = [field for field in REQUIRED_FIELDS if field not in body]
+
         if missing:
-            return response(400, {"message": "Missing required fields", "missing": missing})
+            print(f"Validation failed. Missing fields: {missing}")
+            return response(400, {
+                "message": "Missing required fields",
+                "missing": missing
+            })
 
         body.setdefault("timestamp", datetime.now(timezone.utc).isoformat())
+
+        print(
+            f"Validated event: userId={body.get('userId')}, "
+            f"eventType={body.get('eventType')}, "
+            f"source={body.get('source')}"
+        )
 
         return response(200, {
             "message": "Event accepted by Lambda",
             "event": body
         })
+
     except Exception as exc:
-        return response(500, {"message": "Unhandled error", "error": str(exc)})
+        print(f"Unhandled error: {str(exc)}")
+        return response(500, {
+            "message": "Unhandled error",
+            "error": str(exc)
+        })
