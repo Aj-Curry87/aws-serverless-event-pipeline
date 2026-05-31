@@ -25,3 +25,31 @@ The Lambda should return statusCode 400 and report that eventType is missing.
 
 Lesson:
 The Lambda validates input and returns controlled errors instead of failing silently.
+
+---
+
+## Day 3 - Lambda to DynamoDB Storage Test
+
+### Successful DynamoDB Write
+
+Command:
+
+curl -X POST "https://069xyjjc2f.execute-api.us-east-2.amazonaws.com/events" \
+  -H "Content-Type: application/json" \
+  -d '{"userId":"aj-001","eventType":"login","source":"curl-day-3"}'
+
+Result:
+
+The API returned "Event accepted and saved to DynamoDB."
+
+Verification:
+
+I opened DynamoDB, selected EventTable, explored table items, and confirmed the event was stored with userId, eventType, source, and timestamp.
+
+Lesson:
+
+Lambda can persist validated API events into DynamoDB when the execution role has scoped dynamodb:PutItem permission.
+
+### Common Failure
+
+If Lambda returns AccessDeniedException, check the Lambda execution role and confirm it has dynamodb:PutItem permission for EventTable only.

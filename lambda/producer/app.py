@@ -2,7 +2,12 @@ import json
 import os
 from datetime import datetime, timezone
 
+import boto3
+
 REQUIRED_FIELDS = ["userId", "eventType", "source"]
+
+EVENT_TABLE = os.environ.get("EVENT_TABLE", "EventTable")
+dynamodb = boto3.resource("dynamodb")
 
 
 def response(status_code, body):
@@ -39,8 +44,13 @@ def lambda_handler(event, context):
             f"source={body.get('source')}"
         )
 
+        table = dynamodb.Table(EVENT_TABLE)
+        table.put_item(Item=body)
+
+        print(f"Saved event to DynamoDB table: {EVENT_TABLE}")
+
         return response(200, {
-            "message": "Event accepted by Lambda",
+            "message": "Event accepted and saved to DynamoDB",
             "event": body
         })
 
