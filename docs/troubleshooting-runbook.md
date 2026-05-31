@@ -82,7 +82,7 @@ curl or Postman
 Command:
 
 ```bash
-curl -X POST "https://069xyjjc2f.execute-api.us-east-2.amazonaws.com/events" \
+curl -X POST "https://YOUR_API_ID.execute-api.us-east-2.amazonaws.com/events" \
   -H "Content-Type: application/json" \
   -d '{"userId":"aj-001","eventType":"login","source":"curl"}'
 ```
@@ -107,7 +107,7 @@ The response included:
 Command:
 
 ```bash
-curl -X POST "https://069xyjjc2f.execute-api.us-east-2.amazonaws.com/events" \
+curl -X POST "https://YOUR_API_ID.execute-api.us-east-2.amazonaws.com/events" \
   -H "Content-Type: application/json" \
   -d '{"userId":"aj-001","source":"curl"}'
 ```
@@ -176,7 +176,7 @@ This design allows multiple events to be stored for the same user while preservi
 Command:
 
 ```bash
-curl -X POST "https://069xyjjc2f.execute-api.us-east-2.amazonaws.com/events" \
+curl -X POST "https://YOUR_API_ID.execute-api.us-east-2.amazonaws.com/events" \
   -H "Content-Type: application/json" \
   -d '{"userId":"aj-001","eventType":"login","source":"curl-day-3"}'
 ```
@@ -209,7 +209,7 @@ dynamodb:PutItem
 Scoped to:
 
 ```text
-arn:aws:dynamodb:us-east-2:689556677033:table/EventTable
+arn:aws:dynamodb:us-east-2:YOUR_ACCOUNT_ID:table/EventTable
 ```
 
 ### Lesson
@@ -275,7 +275,7 @@ Deleted the `us-east-1` stream and recreated `event-stream` in `us-east-2`.
 Correct stream ARN:
 
 ```text
-arn:aws:kinesis:us-east-2:689556677033:stream/event-stream
+arn:aws:kinesis:us-east-2:YOUR_ACCOUNT_ID:stream/event-stream
 ```
 
 Lesson:
@@ -289,7 +289,7 @@ For clean troubleshooting, keep API Gateway, Lambda, DynamoDB, Kinesis, Secrets 
 Command:
 
 ```bash
-curl -X POST "https://069xyjjc2f.execute-api.us-east-2.amazonaws.com/events" \
+curl -X POST "https://YOUR_API_ID.execute-api.us-east-2.amazonaws.com/events" \
   -H "Content-Type: application/json" \
   -d '{"userId":"aj-001","eventType":"purchase","source":"curl-day-4"}'
 ```
@@ -318,7 +318,7 @@ kinesis:PutRecord
 Scoped to:
 
 ```text
-arn:aws:kinesis:us-east-2:689556677033:stream/event-stream
+arn:aws:kinesis:us-east-2:YOUR_ACCOUNT_ID:stream/event-stream
 ```
 
 ### Lesson
@@ -366,7 +366,7 @@ When adding the Kinesis trigger to `event-consumer-console`, AWS returned an err
 Error summary:
 
 ```text
-Cannot access stream arn:aws:kinesis:us-east-2:689556677033:stream/event-stream.
+Cannot access stream arn:aws:kinesis:us-east-2:YOUR_ACCOUNT_ID:stream/event-stream.
 ```
 
 Root Cause:
@@ -387,7 +387,7 @@ Added an inline IAM policy allowing:
 The stream-specific actions were scoped to:
 
 ```text
-arn:aws:kinesis:us-east-2:689556677033:stream/event-stream
+arn:aws:kinesis:us-east-2:YOUR_ACCOUNT_ID:stream/event-stream
 ```
 
 Lesson:
@@ -401,7 +401,7 @@ The producer Lambda needs `kinesis:PutRecord` to write to the stream. The consum
 Command:
 
 ```bash
-curl -X POST "https://069xyjjc2f.execute-api.us-east-2.amazonaws.com/events" \
+curl -X POST "https://YOUR_API_ID.execute-api.us-east-2.amazonaws.com/events" \
   -H "Content-Type: application/json" \
   -d '{"userId":"aj-001","eventType":"stream-test","source":"curl-day-4-consumer"}'
 ```
@@ -460,7 +460,7 @@ appMode=training
 Command:
 
 ```bash
-curl -X POST "https://069xyjjc2f.execute-api.us-east-2.amazonaws.com/events" \
+curl -X POST "https://YOUR_API_ID.execute-api.us-east-2.amazonaws.com/events" \
   -H "Content-Type: application/json" \
   -d '{"userId":"aj-001","eventType":"security-test","source":"curl-day-5"}'
 ```
@@ -538,7 +538,7 @@ secretsmanager:GetSecretValue
 for:
 
 ```text
-arn:aws:secretsmanager:us-east-2:689556677033:secret:event-pipeline/app-config-*
+arn:aws:secretsmanager:us-east-2:YOUR_ACCOUNT_ID:secret:event-pipeline/app-config-*
 ```
 
 Lesson:
