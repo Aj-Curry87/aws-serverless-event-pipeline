@@ -85,3 +85,33 @@ Lambda can persist validated API events into DynamoDB when its execution role ha
 ### Common Failure to Watch For
 
 If Lambda returns AccessDeniedException, check the Lambda execution role and confirm it has dynamodb:PutItem permission for EventTable only.
+
+---
+
+## Day 4 - Kinesis Consumer IAM Fix
+
+### Issue
+
+When adding the Kinesis trigger to event-consumer-console, AWS returned an error saying the Lambda role could not access the stream.
+
+### Root Cause
+
+The consumer Lambda execution role did not have Kinesis read permissions.
+
+### Fix
+
+Added an inline IAM policy allowing:
+- kinesis:GetRecords
+- kinesis:GetShardIterator
+- kinesis:DescribeStream
+- kinesis:DescribeStreamSummary
+- kinesis:ListShards
+- kinesis:ListStreams
+
+The stream-specific actions were scoped to:
+
+arn:aws:kinesis:us-east-2:689556677033:stream/event-stream
+
+### Lesson
+
+The producer Lambda needs kinesis:PutRecord to write to the stream. The consumer Lambda needs read permissions to poll records from the stream.

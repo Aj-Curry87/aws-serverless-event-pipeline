@@ -7,7 +7,10 @@ import boto3
 REQUIRED_FIELDS = ["userId", "eventType", "source"]
 
 EVENT_TABLE = os.environ.get("EVENT_TABLE", "EventTable")
+EVENT_STREAM = os.environ.get("EVENT_STREAM", "event-stream")
+
 dynamodb = boto3.resource("dynamodb")
+kinesis = boto3.client("kinesis")
 
 
 def response(status_code, body):
@@ -49,8 +52,20 @@ def lambda_handler(event, context):
 
         print(f"Saved event to DynamoDB table: {EVENT_TABLE}")
 
+        kinesis_response = kinesis.put_record(
+            StreamName=EVENT_STREAM,
+            Data=json.dumps(body).encode("utf-8"),
+            PartitionKey=body["userId"]
+        )
+
+        print(
+            f"Published event to Kinesis stream: {EVENT_STREAM}, "
+            f"shardId={kinesis_response.get('ShardId')}, "
+            f"sequenceNumber={kinesis_response.get('SequenceNumber')}"
+        )
+
         return response(200, {
-            "message": "Event accepted and saved to DynamoDB",
+            "message": "Event accepted, saved to DynamoDB, and published to Kinesis",
             "event": body
         })
 
