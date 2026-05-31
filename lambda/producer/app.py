@@ -8,9 +8,11 @@ REQUIRED_FIELDS = ["userId", "eventType", "source"]
 
 EVENT_TABLE = os.environ.get("EVENT_TABLE", "EventTable")
 EVENT_STREAM = os.environ.get("EVENT_STREAM", "event-stream")
+APP_CONFIG_SECRET_ID = os.environ.get("APP_CONFIG_SECRET_ID", "event-pipeline/app-config")
 
 dynamodb = boto3.resource("dynamodb")
 kinesis = boto3.client("kinesis")
+secretsmanager = boto3.client("secretsmanager")
 
 
 def response(status_code, body):
@@ -21,9 +23,22 @@ def response(status_code, body):
     }
 
 
+def load_app_config():
+    secret_value = secretsmanager.get_secret_value(SecretId=APP_CONFIG_SECRET_ID)
+    config = json.loads(secret_value["SecretString"])
+
+    # Do not print secret values. Only print safe metadata.
+    print(f"Loaded app config from Secrets Manager. Keys available: {list(config.keys())}")
+
+    return config
+
+
 def lambda_handler(event, context):
     try:
         print("Received event from caller")
+
+        app_config = load_app_config()
+        app_mode = app_config.get("appMode", "unknown")
 
         body = event.get("body", event)
 
@@ -40,11 +55,13 @@ def lambda_handler(event, context):
             })
 
         body.setdefault("timestamp", datetime.now(timezone.utc).isoformat())
+        body.setdefault("appMode", app_mode)
 
         print(
             f"Validated event: userId={body.get('userId')}, "
             f"eventType={body.get('eventType')}, "
-            f"source={body.get('source')}"
+            f"source={body.get('source')}, "
+            f"appMode={body.get('appMode')}"
         )
 
         table = dynamodb.Table(EVENT_TABLE)
@@ -65,7 +82,7 @@ def lambda_handler(event, context):
         )
 
         return response(200, {
-            "message": "Event accepted, saved to DynamoDB, and published to Kinesis",
+            "message": "Event accepted, loaded config, saved to DynamoDB, and published to Kinesis",
             "event": body
         })
 
