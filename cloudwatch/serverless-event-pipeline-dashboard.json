@@ -1,0 +1,189 @@
+{
+  "widgets": [
+    {
+      "type": "text",
+      "x": 0,
+      "y": 0,
+      "width": 24,
+      "height": 2,
+      "properties": {
+        "markdown": "# AWS Serverless Event Pipeline Dashboard\nMonitoring API Gateway, Lambda, DynamoDB, Kinesis, and operational health for the event pipeline."
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 2,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Producer Lambda - Invocations and Errors",
+        "region": "us-east-2",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          [ "AWS/Lambda", "Invocations", "FunctionName", "event-producer-console", { "stat": "Sum" } ],
+          [ ".", "Errors", ".", ".", { "stat": "Sum" } ],
+          [ ".", "Throttles", ".", ".", { "stat": "Sum" } ]
+        ],
+        "period": 300
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 2,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Consumer Lambda - Invocations and Errors",
+        "region": "us-east-2",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          [ "AWS/Lambda", "Invocations", "FunctionName", "event-consumer-console", { "stat": "Sum" } ],
+          [ ".", "Errors", ".", ".", { "stat": "Sum" } ],
+          [ ".", "Throttles", ".", ".", { "stat": "Sum" } ]
+        ],
+        "period": 300
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 8,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Producer Lambda - Duration",
+        "region": "us-east-2",
+        "view": "timeSeries",
+        "metrics": [
+          [ "AWS/Lambda", "Duration", "FunctionName", "event-producer-console", { "stat": "Average" } ],
+          [ "...", { "stat": "Maximum" } ]
+        ],
+        "period": 300,
+        "yAxis": {
+          "left": {
+            "label": "Milliseconds"
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 8,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Consumer Lambda - Duration",
+        "region": "us-east-2",
+        "view": "timeSeries",
+        "metrics": [
+          [ "AWS/Lambda", "Duration", "FunctionName", "event-consumer-console", { "stat": "Average" } ],
+          [ "...", { "stat": "Maximum" } ]
+        ],
+        "period": 300,
+        "yAxis": {
+          "left": {
+            "label": "Milliseconds"
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 14,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "DynamoDB EventTable - Write Activity",
+        "region": "us-east-2",
+        "view": "timeSeries",
+        "metrics": [
+          [ "AWS/DynamoDB", "ConsumedWriteCapacityUnits", "TableName", "EventTable", { "stat": "Sum" } ],
+          [ ".", "WriteThrottleEvents", ".", ".", { "stat": "Sum" } ],
+          [ ".", "SuccessfulRequestLatency", ".", ".", "Operation", "PutItem", { "stat": "Average" } ]
+        ],
+        "period": 300
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 14,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Kinesis event-stream - Incoming Records and Bytes",
+        "region": "us-east-2",
+        "view": "timeSeries",
+        "metrics": [
+          [ "AWS/Kinesis", "IncomingRecords", "StreamName", "event-stream", { "stat": "Sum" } ],
+          [ ".", "IncomingBytes", ".", ".", { "stat": "Sum" } ],
+          [ ".", "WriteProvisionedThroughputExceeded", ".", ".", { "stat": "Sum" } ]
+        ],
+        "period": 300
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 20,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Kinesis Consumer Health - Iterator Age",
+        "region": "us-east-2",
+        "view": "timeSeries",
+        "metrics": [
+          [ "AWS/Lambda", "IteratorAge", "FunctionName", "event-consumer-console", { "stat": "Maximum" } ]
+        ],
+        "period": 300,
+        "yAxis": {
+          "left": {
+            "label": "Milliseconds"
+          }
+        }
+      }
+    },
+    {
+      "type": "log",
+      "x": 12,
+      "y": 20,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Recent Producer Lambda Logs",
+        "region": "us-east-2",
+        "query": "SOURCE '/aws/lambda/event-producer-console' | fields @timestamp, @message\n| sort @timestamp desc\n| limit 20",
+        "view": "table"
+      }
+    },
+    {
+      "type": "log",
+      "x": 0,
+      "y": 26,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Recent Consumer Lambda Logs",
+        "region": "us-east-2",
+        "query": "SOURCE '/aws/lambda/event-consumer-console' | fields @timestamp, @message\n| sort @timestamp desc\n| limit 20",
+        "view": "table"
+      }
+    },
+    {
+      "type": "text",
+      "x": 12,
+      "y": 26,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "markdown": "## Operational Checks\n\nUse this dashboard to confirm:\n\n- Producer Lambda is receiving API requests.\n- Producer Lambda errors remain at zero.\n- Events are being written to DynamoDB.\n- Events are being published to Kinesis.\n- Consumer Lambda is processing records.\n- Iterator age remains low.\n- CloudWatch logs show validation, persistence, streaming, and consumer processing."
+      }
+    }
+  ]
+}
