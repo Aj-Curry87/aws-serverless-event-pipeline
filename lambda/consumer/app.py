@@ -4,11 +4,15 @@ import json
 
 def lambda_handler(event, context):
     processed = 0
+    records = event.get("Records", [])
 
-    print(f"Received batch from Kinesis with {len(event.get('Records', []))} records")
+    print(f"Received batch from Kinesis with {len(records)} records")
 
-    for record in event.get("Records", []):
-        payload = base64.b64decode(record["kinesis"]["data"]).decode("utf-8")
+    for record in records:
+        payload = base64.b64decode(
+            record["kinesis"]["data"]
+        ).decode("utf-8")
+
         data = json.loads(payload)
 
         print(

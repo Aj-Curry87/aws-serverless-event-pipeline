@@ -12,6 +12,24 @@ crash.*.log
 # Keep the lock file committed
 !.terraform.lock.hcl
 
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.key
+*.crt
+id_rsa
+id_rsa.pub
+
+# Local AWS files
+.aws/
+credentials
+config
+
 # OS/editor files
 .DS_Store
 .vscode/
+
+# Screenshots that may expose account details
+screenshots/private/
+*.heic
