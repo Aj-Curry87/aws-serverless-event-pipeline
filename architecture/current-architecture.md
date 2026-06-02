@@ -1,5 +1,37 @@
 # AWS Serverless Event Pipeline - Current Architecture
 
+This document represents the current AWS infrastructure created for the serverless event pipeline lab.
+
+## Architecture Diagram
+
+```mermaid
+flowchart TD
+    User[Client / curl / Postman] --> APIGW[API Gateway<br/>HTTP API<br/>POST /events]
+
+    APIGW --> Producer[Producer Lambda<br/>event-producer-console]
+
+    Producer --> Secrets[Secrets Manager<br/>event-pipeline/app-config<br/>appMode=training]
+
+    Producer --> DynamoDB[DynamoDB<br/>EventTable<br/>PK: userId<br/>SK: timestamp]
+
+    Producer --> Kinesis[Kinesis Data Stream<br/>event-stream<br/>Provisioned<br/>1 shard]
+
+    Kinesis --> Consumer[Consumer Lambda<br/>event-consumer-console]
+
+    Producer --> CWProducer[CloudWatch Logs<br/>Producer Lambda Logs]
+    Consumer --> CWConsumer[CloudWatch Logs<br/>Consumer Lambda Logs]
+
+    APIGW --> CWAPI[CloudWatch Metrics<br/>API Gateway Requests / Errors]
+    DynamoDB --> CWDDB[CloudWatch Metrics<br/>DynamoDB Writes / Throttles]
+    Kinesis --> CWKinesis[CloudWatch Metrics<br/>Kinesis Incoming Records / Iterator Age]
+
+    IAM[IAM Roles and Policies] --> Producer
+    IAM --> Consumer
+
+    Budget[AWS Budgets<br/>Zero-spend + Monthly Cost Budget] -. cost guardrail .-> Kinesis
+    Budget -. cost guardrail .-> DynamoDB
+    Budget -. cost guardrail .-> Producer# AWS Serverless Event Pipeline - Current Architecture
+
 This diagram represents the current AWS infrastructure created for the serverless event pipeline lab.
 
 ```mermaid
