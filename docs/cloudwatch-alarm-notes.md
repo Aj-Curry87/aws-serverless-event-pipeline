@@ -1,35 +1,32 @@
-# CloudWatch Alarm Notes
+## Troubleshooting Finding
 
-## Purpose
+During alarm testing, the API returned an unhandled error because the Producer Lambda attempted to write to a Kinesis stream named `event-stream`, but the stream was not found in `us-east-2`.
 
-CloudWatch alarms notify the team when the event pipeline shows failure signals. Dashboards are useful when someone is watching, but alarms are useful when no one is watching.
+Root cause possibilities:
+- Kinesis stream was not created.
+- Stream name did not match the Lambda configuration.
+- Stream existed in a different Region.
+- Lambda environment variable or hardcoded stream name was incorrect.
 
-## Alarms Created
+Resolution:
+- Verified Kinesis streams with `aws kinesis list-streams --region us-east-2`.
+- Created or corrected the stream name as needed.
+- Retested the API after confirming the stream was active.
 
-| Alarm | Service | Metric | Meaning | First Response |
-|---|---|---|---|---|
-| ProducerLambdaErrors | Lambda | Errors | The API-facing Lambda failed. | Check producer Lambda logs. |
-| ConsumerLambdaErrors | Lambda | Errors | The stream-processing Lambda failed. | Check consumer Lambda logs and Kinesis trigger. |
-| KinesisWriteThroughputExceeded | Kinesis | WriteProvisionedThroughputExceeded | Kinesis write capacity was exceeded. | Check traffic volume, shard count, and producer retries. |
+Entry-level explanation:
+The API worked, but the backend Lambda could not place the event onto the Kinesis stream because the expected stream was missing.
+## Day 4 Test Finding
 
-## Entry-Level Explanation
+While testing the CloudWatch alarms, the API returned an error because the Producer Lambda attempted to write to the Kinesis stream before the expected stream was available. 
 
-An alarm is a rule that watches a metric. A metric is a number AWS records, such as Lambda errors or Kinesis throttles. When the number crosses a threshold, CloudWatch changes the alarm state.
+Creation Command:
 
-## Business Use Cases
+aws kinesis create-stream \
+  --stream-name YOUR-STREAM NAME \
+  --shard-count YOUR SHARD COUNT \
+  --region Your Region
 
-### Finance
-Alarms help detect payment, fraud, or transaction-processing failures quickly.
+Validation command:
 
-### Health
-Alarms help teams respond when patient-related events, device alerts, or appointment workflows fail.
-
-### Government
-Alarms support incident response and operational accountability for audit or security event pipelines.
-
-### Retail
-Alarms help detect cart, checkout, order, and inventory event failures during normal traffic or sales spikes.
-
-## Interview Explanation
-
-I added CloudWatch alarms so the system does not rely only on manual log checking. The alarms watch Lambda errors and Kinesis throttling, which are early signs of failed event intake, failed processing, or stream pressure.
+```bash
+aws kinesis list-streams --region Your Region
