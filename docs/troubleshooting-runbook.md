@@ -670,3 +670,21 @@ I built a serverless event pipeline using API Gateway, Lambda, DynamoDB, Kinesis
 During the build, I troubleshot real issues including a Kinesis Region mismatch, an accidental `EOF` paste error in Lambda code, missing Kinesis read permissions for the consumer Lambda, a missing Secrets Manager permission for the producer Lambda, and a secret key mismatch. Each issue was identified through CloudWatch logs or AWS service errors, fixed, retested, and documented.
 
 This gave me practical experience with event-driven architecture, least-privilege IAM, serverless troubleshooting, safe logging, and AWS operational discipline.
+
+
+# Troubleshooting Runbook
+
+## Monitoring and Observability
+
+This project uses CloudWatch dashboards, CloudWatch alarms, CloudWatch logs, and AWS X-Ray to monitor and troubleshoot the serverless event pipeline.
+
+The pipeline flow is:
+
+```text
+API Gateway
+→ Producer Lambda
+→ Secrets Manager
+→ DynamoDB
+→ Kinesis
+→ Consumer Lambda
+→ CloudWatch Logs
